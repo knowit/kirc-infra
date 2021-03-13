@@ -22,7 +22,7 @@ module "lambda_function" {
     runtime = "nodejs14.x"
     publish = true
 
-    source_path = "src/message_processor.js"
+    source_path = "function/message_processor.js"
     store_on_s3 = true
     s3_bucket = "message_processor_bucket"
     
