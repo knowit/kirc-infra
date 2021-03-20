@@ -1,15 +1,5 @@
 const AWSXRay = require('aws-xray-sdk-core')
 const AWS = AWSXRay.captureAWS(require('aws-sdk'))
-const MongoClient = require('mongodb').MongoClient
-const format = require('util').format
-const fs = require('fs')
-const mongoConnectionString = ""
-var ca = [fs.readFileSync("../ca/rds-combined-ca-bundle.pem")];
-const mongoOptions = {
-    sslValidate: true,
-    sslCA: ca,
-    useNewUrlParser: true
-}
 
 // Create client outside of handler to reuse
 const lambda = new AWS.Lambda()
