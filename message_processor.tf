@@ -13,7 +13,7 @@ module "message_processor_lambda" {
 
     function_name = "message_processor"
     description = "A function which processes the different fields on the Message entity before it is sent to the ETL queue"
-    handler = "index.lambda_handler"
+    handler = "message_processor.lambda_handler"
     runtime = "nodejs14.x"
     publish = true
 
@@ -21,11 +21,6 @@ module "message_processor_lambda" {
     store_on_s3 = true
     s3_bucket = "f016c80a-0599-4e95-832b-7e2664bf065f"
     
-}
-
-resource "aws_lambda_event_source_mapping" "message_processor_trigger" {
-    event_source_arn = "arn:aws:sqs:eu-central-1:030483651510:message_processor_queue.fifo"
-    function_name = "message_processor"
 }
 
 resource "aws_iam_role_policy_attachment" "attach_message_processor_sqs_full_access" {
@@ -36,4 +31,9 @@ resource "aws_iam_role_policy_attachment" "attach_message_processor_sqs_full_acc
 resource "aws_iam_role_policy_attachment" "attach_message_processor_sqs_execute" {
     role = "message_processor"
     policy_arn = "arn:aws:iam::aws:policy/service-role/AWSLambdaSQSQueueExecutionRole"
+}
+
+resource "aws_lambda_event_source_mapping" "message_processor_trigger" {
+    event_source_arn = "arn:aws:sqs:eu-central-1:030483651510:message_processor_queue.fifo"
+    function_name = "message_processor"
 }

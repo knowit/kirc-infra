@@ -12,8 +12,8 @@ module "etl_lambda" {
   source = "terraform-aws-modules/lambda/aws"
 
   function_name = "etl"
-  description   = "A function which extrancts messages from the queue and loads them to the database"
-  handler       = "index.lambda_handler"
+  description   = "A function which extracts messages from the queue and loads them to the database"
+  handler       = "et.lambda_handler"
   runtime       = "nodejs14.x"
   publish       = true
 
@@ -21,11 +21,13 @@ module "etl_lambda" {
   store_on_s3 = true
   s3_bucket   = "f016c80a-0599-4e95-832b-7e2664bf065f"
 
-}
+  # environment {
+  #   variables = {
+  #     mongoPassword = mongoPassword
+  #   }
+  # }
 
-resource "aws_lambda_event_source_mapping" "etl_trigger" {
-  event_source_arn = "arn:aws:sqs:eu-central-1:030483651510:etl.fifo"
-  function_name = "etl"
+
 }
 
 resource "aws_iam_role_policy_attachment" "attach_etl_sqs_full_access" {
@@ -36,4 +38,9 @@ resource "aws_iam_role_policy_attachment" "attach_etl_sqs_full_access" {
 resource "aws_iam_role_policy_attachment" "attach_etl_sqs_execute" {
     role = "etl"
     policy_arn = "arn:aws:iam::aws:policy/service-role/AWSLambdaSQSQueueExecutionRole"
+}
+
+resource "aws_lambda_event_source_mapping" "etl_trigger" {
+  event_source_arn = "arn:aws:sqs:eu-central-1:030483651510:etl.fifo"
+  function_name = "etl"
 }

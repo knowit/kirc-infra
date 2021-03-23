@@ -1,52 +1,36 @@
-const AWSXRay = require('aws-xray-sdk-core')
-const AWS = AWSXRay.captureAWS(require('aws-sdk'))
-
-// Create client outside of handler to reuse
-const lambda = new AWS.Lambda()
+const AWS = require('aws-sdk')
+const sqs = new AWS.SQS({region:'eu-east-1'});
+const QUEUE_URL = 'https://sqs.eu-central-1.amazonaws.com/030483651510/etl.fifo'
+const message_group_id = "kirc"
 
 // Handler
-exports.handler = async function(event, context) {
-  event.Records.forEach(record => {
-    process(record.body)  
-    log(record.body)
-    console.log(record.body)
-  })
-  console.log('## ENVIRONMENT VARIABLES: ' + serialize(process.env))
-  console.log('## CONTEXT: ' + serialize(context))
-  console.log('## EVENT: ' + serialize(event))
-  
-  return getAccountSettings()
+exports.lambda_handler = async function(event, context) {
+  const eventJSON = serialize(event)
+  console.log("event", serialize(event))
+  await send(eventJSON)
+  context.succeed("Exit")
 }
 
-// Use SDK client
-var getAccountSettings = function(){
-  return lambda.getAccountSettings().promise()
+var send = async function send(eventJSON) {
+  return new Promise(function(resolve, reject) {
+    const sqsParams = {
+      MessageBody: eventJSON,
+      QueueUrl: QUEUE_URL,
+      MessageGroupId: message_group_id
+      
+    }
+    
+    sqs.sendMessage(sqsParams, function(err, data) {
+      if (err) {
+        console.log('ERR', err);
+        reject(err)
+      }
+      console.log("data", data)
+      resolve(data)
+    })
+  })
 }
 
 var serialize = function(object) {
   return JSON.stringify(object, null, 2)
-}
-
-var process = function(message) {
-    log(message)
-
-    
-}
-
-var log = function(message) {
-    const currentTime = new Date()
-    console.log(`At ${currentTime} a message was received from ${message.nickname}: ${message.message}`)
-}
-
-var store = function(message) {
-    var client = MongoClient.connect(connectionString, mongoOptions, (err, client){
-        if(err) throw err
-        db = client.db("Message")
-        col = db.collection("Message")
-
-        col.insertOne(message, function(err, result){
-            if(err) throw err
-        })
-        client.close()
-    })
 }
