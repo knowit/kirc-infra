@@ -1,0 +1,15 @@
+{
+  "name": "message_processor",
+  "version": "1.0.0",
+  "description": "",
+  "main": "handler.js",
+  "dependencies": {
+    "mongodb": "^3.6.0"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "npm test"
+  },
+  "author": "Tom Fagerland <tom.fagerland@knowit.no>",
+  "license": "ISC"
+}
