@@ -24,7 +24,7 @@ const processMessage = function (message) {
   console.log('Processing message', message)
    return {
     message: message.message,
-    timestamp: new Date(),
+    timestamp: message.timestamp,
     id: message.id,
   }
 }
