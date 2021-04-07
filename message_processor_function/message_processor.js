@@ -24,12 +24,15 @@ const processMessage = function (message) {
   console.log('Processing message', message)
    return {
     message: message.message,
-    timestamp: message.timestamp,
+    timestamp: processTimestamp(message.timestamp),
     id: message.id,
+    nickname: message.nickname,
+    style: message.style
   }
 }
 
 const send = async function send(messages) {
+  console.log("Sending", messages)
   await connectToDatabase()
   await cachedCollection.insertMany(messages)
   console.log('Inserted', messages)
@@ -52,4 +55,9 @@ async function connectToDatabase() {
   console.log('Connection to index ' + index + ' obtained.')
   cachedCollection = collection
   return cachedCollection
+}
+ 
+function processTimestamp(timestampAsString) {
+  const date = new Date(timestampAsString)
+  return date.toISOString()
 }
