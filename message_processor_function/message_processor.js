@@ -1,7 +1,7 @@
 const { MongoClient } = require('mongodb')
 const index = 'Message'
 const password = process.env.PASSWORD
-const mongoConnectionString = "mongodb://kirc:"+password+"@knowit-irc-messages.cluster-ci2nclm2m805.eu-central-1.docdb.amazonaws.com:27017/?ssl=false&replicaSet=rs0&readPreference=secondaryPreferred&retryWrites=false"
+const mongoConnectionString = "mongodb://kirc:" + password + "@knowit-irc-messages.cluster-ci2nclm2m805.eu-central-1.docdb.amazonaws.com:27017/?ssl=false&replicaSet=rs0&readPreference=secondaryPreferred&retryWrites=false"
 const mongoOptions = {
   useNewUrlParser: true,
   useUnifiedTopology: true,
@@ -14,7 +14,7 @@ const debug = process.env.DEBUG
 exports.handler = async function (event, context) {
   console.log('Started handling event', event)
   const messages = event.Records.map((record) => JSON.parse(record.body))
-  const processedMessages = messages.map(message=>processMessage(message))
+  const processedMessages = messages.map(message => processMessage(message))
   await send(processedMessages)
   console.log("Finished handling event")
   context.succeed('Exit')
@@ -22,7 +22,7 @@ exports.handler = async function (event, context) {
 
 const processMessage = function (message) {
   console.log('Processing message', message)
-   return {
+  return {
     message: message.message,
     timestamp: processTimestamp(message.timestamp),
     id: message.id,
@@ -36,9 +36,9 @@ const send = async function send(messages) {
   await connectToDatabase()
   await cachedCollection.insertMany(messages)
   console.log('Inserted', messages)
-  if(debug){
-      const amount = await cachedCollection.countDocuments()
-      console.log("Counted documents: "+amount)
+  if (debug) {
+    const amount = await cachedCollection.countDocuments()
+    console.log("Counted documents: " + amount)
   }
 }
 
@@ -56,8 +56,19 @@ async function connectToDatabase() {
   cachedCollection = collection
   return cachedCollection
 }
- 
+
+const TOLERATEDTIMEDIFFERENCE = 2;
 function processTimestamp(timestampAsString) {
-  const date = new Date(timestampAsString)
+  let date;
+  try {
+    date = new Date(timestampAsString)
+    const currentDate = new Date();
+    if (Math.abs(currentDate.getTime() - date.getTime()) > 1000 * 60 * TOLERATEDTIMEDIFFERENCE) {
+      console.error("Invalid date, using current date");
+      throw new Error("Invalid date");
+    }
+  } catch (err) {
+    date = new Date();
+  }
   return date.toISOString()
 }
