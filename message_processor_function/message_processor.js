@@ -33,11 +33,13 @@ const processMessage = function (message) {
     let stylingHasChanged = false;
 
     if (styling.includes("i")) {
+      style = style.replace(/font-style:.*;/, "")
       style += "font-style: italic;";
       stylingHasChanged = true;
     }
-
+    
     if (styling.includes("b")) {
+      style = style.replace(/font-weight:.*;/, "")
       style += "font-weight: bold;";
       stylingHasChanged = true;
     }
