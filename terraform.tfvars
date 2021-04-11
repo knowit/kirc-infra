@@ -1,0 +1,3 @@
+PASSWORD="CX6v-rtAEqyrqkjmfHuwQJzd"
+DEBUG=true
+BUCKET="f016c80a-0599-4e95-832b-7e2664bf065f"
